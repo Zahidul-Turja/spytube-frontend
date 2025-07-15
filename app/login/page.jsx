@@ -1,16 +1,9 @@
-"use client";
-import { getAuthUrl } from "@/lib/api";
+import LoginPage from "@/pages/LoginPage";
 
-export default function LoginPage() {
-  const handleLogin = async () => {
-    const data = await getAuthUrl();
-    window.location.href = data.auth_url;
-  };
+export const metadata = {
+  title: "SpyTube | Login",
+};
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Login with Google</h1>
-      <button onClick={handleLogin}>Login</button>
-    </main>
-  );
+export default function Page() {
+  return <LoginPage />;
 }
