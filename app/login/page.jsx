@@ -8,7 +8,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main style={{ padding: "2rem" }}>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <h1>Login with Google</h1>
       <button onClick={handleLogin}>Login</button>
     </main>
