@@ -1,29 +1,15 @@
 "use client";
 
+import NavTop from "@/components/NavTop";
+
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-transparent text-white">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-6">
-        <div className="text-2xl font-bold">SpyTube</div>
-        <div className="flex items-center space-x-6">
-          <a
-            href="/login"
-            className="text-gray-300 hover:text-white transition-colors"
-          >
-            Login
-          </a>
-          <a
-            href="/login"
-            className="bg-white text-black px-6 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium"
-          >
-            Get Started
-          </a>
-        </div>
-      </nav>
+      <NavTop />
 
       {/* Hero Section */}
-      <main className="flex items-center justify-between px-8 py-20 max-w-7xl mx-auto">
+      <main className="flex items-center justify-between px-8 py-20 max-w-7xl h-[74vh] mx-auto">
         {/* Left Content */}
         <div className="flex-1 max-w-2xl">
           <h1 className="text-6xl font-bold leading-tight mb-6">
@@ -64,7 +50,7 @@ export default function HomePage() {
                     className="w-1 h-1 bg-gray-600 rounded-full"
                     style={{
                       opacity: Math.random() * 0.5 + 0.1,
-                      animationDelay: `${i * 0.05}s`,
+                      animationDelay: `${i * 0.1}s`,
                     }}
                   />
                 ))}

@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import StarsCanvas from "@/components/StarsCanvas";
 import userStore from "@/stores/userStore";
 import { checkToken, getAuthUrl } from "@/lib/api";
+import NavTop from "@/components/NavTop";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,25 +41,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-transparent text-white flex flex-col">
-      <StarsCanvas />
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-8 py-6">
-        <div className="text-2xl font-bold">SpyTube</div>
-        <div className="flex items-center space-x-6">
-          <a
-            href="/"
-            className="text-gray-300 hover:text-white transition-colors"
-          >
-            Home
-          </a>
-          <a
-            href="#"
-            className="text-gray-300 hover:text-white transition-colors"
-          >
-            About
-          </a>
-        </div>
-      </nav>
+      <NavTop />
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center px-8">
