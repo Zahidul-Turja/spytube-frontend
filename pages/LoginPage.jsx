@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+import StarsCanvas from "@/components/StarsCanvas";
 import userStore from "@/stores/userStore";
 import { checkToken, getAuthUrl } from "@/lib/api";
 
@@ -39,7 +40,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
+    <div className="min-h-screen bg-transparent text-white flex flex-col">
+      <StarsCanvas />
       {/* Navigation */}
       <nav className="flex items-center justify-between px-8 py-6">
         <div className="text-2xl font-bold">SpyTube</div>
