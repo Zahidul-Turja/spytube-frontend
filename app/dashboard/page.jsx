@@ -1,26 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   BarChart3,
-  Users,
   Eye,
   Clock,
-  ThumbsUp,
+  Users,
   TrendingUp,
-  PlayCircle,
+  DollarSign,
+  Video,
+  Bell,
+  Settings,
+  Search,
   Menu,
   X,
-  Home,
-  BarChart,
-  Video,
-  Settings,
-  Bell,
-  Search,
-  ChevronRight,
+  Play,
+  Calendar,
+  Activity,
 } from "lucide-react";
-
-import { getDashboardData } from "@/lib/api";
+import { getDashboardData, getRevenueBreakdown } from "@/lib/api";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,6 +34,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const data = await getDashboardData();
+        console.log(data);
         setChannelData(data.channelData);
         setAnalyticsData(data.analyticsData);
         setPlaylists(data.playlists);
@@ -43,65 +43,67 @@ const Dashboard = () => {
         console.error("Error fetching data:", error);
       }
     };
+    const revenueBreakdown = async () => {
+      try {
+        const data = await getRevenueBreakdown();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
     fetchData();
+    revenueBreakdown();
   }, []);
 
-  const MetricCard = ({ title, value, icon: Icon, change, changeType }) => (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
+  const revenueData = {
+    estimatedRevenue: 0.0,
+    cpm: 2.5,
+    projections: {
+      daily: 0.0,
+      monthly: 0.0,
+      yearly: 0.0,
+    },
+  };
+
+  const sidebarItems = [
+    { icon: BarChart3, label: "Analytics", active: true },
+    { icon: Video, label: "Content", active: false },
+    { icon: DollarSign, label: "Revenue", active: false },
+    { icon: Users, label: "Audience", active: false },
+    { icon: Activity, label: "Performance", active: false },
+    { icon: Settings, label: "Settings", active: false },
+  ];
+
+  const StatCard = ({ title, value, change, icon: Icon, trend }) => (
+    <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 hover:bg-gray-800 transition-colors">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-gray-600 text-sm font-medium">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-gray-400 text-sm font-medium">{title}</p>
+          <p className="text-2xl font-bold text-white mt-1">{value}</p>
           {change && (
             <p
-              className={`text-sm mt-1 ${changeType === "positive" ? "text-green-600" : "text-red-600"}`}
+              className={`text-sm mt-1 ${trend === "up" ? "text-green-400" : "text-red-400"}`}
             >
-              {changeType === "positive" ? "↗" : "↘"} {change}
+              {change}
             </p>
           )}
         </div>
-        <div className="p-3 bg-gray-100 rounded-full">
-          <Icon className="w-6 h-6 text-gray-700" />
+        <div className="bg-gray-800 p-3 rounded-lg">
+          <Icon className="w-6 h-6 text-gray-400" />
         </div>
       </div>
     </div>
   );
-
-  const PlaylistCard = ({ playlist }) => (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
-      <div className="flex items-center space-x-4">
-        <img
-          src={playlist.thumbnail}
-          alt={playlist.title}
-          className="w-16 h-12 rounded object-cover"
-        />
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{playlist.title}</h3>
-          <p className="text-gray-600 text-sm">{playlist.videoCount} videos</p>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-      </div>
-    </div>
-  );
-
-  const sidebarItems = [
-    { id: "overview", label: "Overview", icon: Home },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "content", label: "Content", icon: Video },
-    { id: "playlists", label: "Playlists", icon: PlayCircle },
-    { id: "settings", label: "Settings", icon: Settings },
-  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black text-white">
       {/* Top Navigation */}
-      <nav className="bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 bg-black border-b border-gray-800 z-50">
+        <div className="px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-800 transition-colors"
             >
               {sidebarOpen ? (
                 <X className="w-5 h-5" />
@@ -109,278 +111,154 @@ const Dashboard = () => {
                 <Menu className="w-5 h-5" />
               )}
             </button>
-            <h1 className="text-xl font-bold text-gray-900">SpyTube</h1>
+            <h1 className="text-xl font-bold">YouTube Analytics</h1>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="relative hidden md:block">
-              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                className="bg-gray-900 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-gray-600"
               />
             </div>
-            <button className="p-2 rounded-lg hover:bg-gray-100">
-              <Bell className="w-5 h-5 text-gray-600" />
+            <button className="p-2 rounded-lg hover:bg-gray-800 transition-colors relative">
+              <Bell className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </button>
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">ZT</span>
+            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium">ZT</span>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <div
-          className={`${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out`}
-        >
-          <div className="flex flex-col h-full pt-16 lg:pt-0">
-            <div className="flex-1 px-4 py-6 space-y-2">
-              {sidebarItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                    activeTab === item.id
-                      ? "bg-black text-white"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
+      {/* Sidebar */}
+      <aside
+        className={`fixed left-0 top-16 h-full w-64 bg-black border-r border-gray-800 transform transition-transform duration-300 ease-in-out z-40 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      >
+        <div className="p-4">
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-white mb-2">
+              {channelData.title}
+            </h2>
+            <p className="text-gray-400 text-sm">@zahidulturja</p>
+          </div>
+
+          <nav className="space-y-2">
+            {sidebarItems.map((item, index) => (
+              <a
+                key={index}
+                href="#"
+                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                  item.active
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                <span className="font-medium">{item.label}</span>
+              </a>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="lg:ml-64 pt-16 p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+          <p className="text-gray-400">Welcome back, {channelData?.title}</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCard
+            title="Total Views"
+            value={channelData?.totalViews?.toLocaleString()}
+            icon={Eye}
+          />
+          <StatCard
+            title="Subscribers"
+            value={channelData?.subscribers?.toLocaleString()}
+            icon={Users}
+          />
+          <StatCard
+            title="Total Videos"
+            value={channelData?.totalVideos}
+            icon={Video}
+          />
+          <StatCard
+            title="Watch Time"
+            value={`${channelData?.watchTime} hrs`}
+            icon={Clock}
+          />
+        </div>
+
+        {/* Revenue Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            title="Estimated Revenue"
+            value={`$${revenueData.estimatedRevenue.toFixed(2)}`}
+            icon={DollarSign}
+          />
+          <StatCard
+            title="CPM"
+            value={`$${revenueData.cpm.toFixed(2)}`}
+            icon={TrendingUp}
+          />
+          <StatCard
+            title="Monthly Projection"
+            value={`$${revenueData.projections.monthly.toFixed(2)}`}
+            icon={Calendar}
+          />
+        </div>
+
+        {/* Recent Videos */}
+        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
+          <h2 className="text-xl font-semibold text-white mb-6">
+            Recent Videos
+          </h2>
+          <div className="space-y-4">
+            {videos.map((video, index) => (
+              <div
+                key={index}
+                className="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <div className="relative">
+                  <img
+                    src={video.snippet.thumbnails.default.url}
+                    alt={video.snippet.title}
+                    className="w-24 h-16 object-cover rounded-lg"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Play className="w-6 h-6 text-white opacity-80" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-medium text-white truncate">
+                    {video.snippet.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {new Date(video.snippet.publishedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-white font-medium">{video.views}</p>
+                  <p className="text-gray-400 text-sm">{video.duration}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-
-        {/* Main Content */}
-        <div className="flex-1 p-6 lg:p-8">
-          {activeTab === "overview" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Dashboard Overview
-                </h2>
-                <div className="text-sm text-gray-600">
-                  Channel: {channelData?.title}
-                </div>
-              </div>
-
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <MetricCard
-                  title="Total Views"
-                  value={channelData?.totalViews}
-                  icon={Eye}
-                  change="+12%"
-                  changeType="positive"
-                />
-                <MetricCard
-                  title="Subscribers"
-                  value={channelData?.subscribers}
-                  icon={Users}
-                  change="+5%"
-                  changeType="positive"
-                />
-                <MetricCard
-                  title="Watch Time"
-                  value={`${channelData?.watchTime} hrs`}
-                  icon={Clock}
-                  change="+8%"
-                  changeType="positive"
-                />
-                <MetricCard
-                  title="Total Videos"
-                  value={channelData?.totalVideos}
-                  icon={Video}
-                  change="+2"
-                  changeType="positive"
-                />
-              </div>
-
-              {/* Analytics Chart Placeholder */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Performance Overview
-                </h3>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <div className="text-center">
-                    <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">
-                      Analytics chart will appear here
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Connect your data to see performance trends
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Recent Activity
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 py-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-gray-700">
-                      New video uploaded to "Projects" playlist
-                    </span>
-                    <span className="text-sm text-gray-500">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3 py-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-gray-700">
-                      Analytics report generated
-                    </span>
-                    <span className="text-sm text-gray-500">1 day ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3 py-2">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                    <span className="text-gray-700">
-                      Playlist "Communication Lesions" updated
-                    </span>
-                    <span className="text-sm text-gray-500">3 days ago</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "analytics" && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Detailed Analytics
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <MetricCard
-                  title="Average View Duration"
-                  value={`${analyticsData?.averageViewDuration}s`}
-                  icon={Clock}
-                />
-                <MetricCard
-                  title="Total Likes"
-                  value={analyticsData?.likes}
-                  icon={ThumbsUp}
-                />
-                <MetricCard
-                  title="Subscribers Gained"
-                  value={analyticsData?.subscribersGained}
-                  icon={TrendingUp}
-                />
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Engagement Metrics
-                </h3>
-                <div className="h-80 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <div className="text-center">
-                    <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">Detailed analytics charts</p>
-                    <p className="text-sm text-gray-500">
-                      View trends, engagement rates, and more
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "playlists" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Playlists</h2>
-                <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-                  Create Playlist
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {playlists?.map((playlist, index) => (
-                  <PlaylistCard key={index} playlist={playlist} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "content" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Content Management
-                </h2>
-                <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-                  Upload Video
-                </button>
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Recent Videos
-                </h3>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                  <div className="text-center">
-                    <Video className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">
-                      Your videos will appear here
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Upload your first video to get started
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "settings" && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Account Settings
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Channel Name
-                    </label>
-                    <input
-                      type="text"
-                      value={channelData?.title}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Notifications
-                    </label>
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded" />
-                      <span className="text-sm text-gray-600">
-                        Receive email notifications for new subscribers
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      </main>
 
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
