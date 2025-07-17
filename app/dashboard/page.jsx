@@ -141,7 +141,7 @@ const Dashboard = () => {
         <div className="p-4">
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-white mb-2">
-              {channelData.title}
+              {channelData?.title}
             </h2>
             <p className="text-gray-400 text-sm">@zahidulturja</p>
           </div>
@@ -222,7 +222,7 @@ const Dashboard = () => {
             Recent Videos
           </h2>
           <div className="space-y-4">
-            {videos.map((video, index) => (
+            {videos?.map((video, index) => (
               <div
                 key={index}
                 className="flex items-center space-x-4 p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
